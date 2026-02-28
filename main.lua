@@ -213,10 +213,6 @@ local function check(comb)
             A,B=compare(answers[i],comb)
             if B~=b or A~=a then TABLE.remove(answers,i) end
         end
-        if mode==5 then
-            -- info[#info-1]=gsub(info[#info-1],".A.B","?A?B")
-            -- hide attempts other than recent 2
-        end
         if mode==3 and #answers==1 then
             TABLE.insert(attempts,{attempt=comb,A=a,B=b,unique=true})
             SFX("hint")
@@ -516,19 +512,9 @@ scene_play.widgetList={
             end
         end
     end,fontSize=25,color='Blue'},
-    --[=[
-    {"R",570,595,70,70,function()
-        SFX("error")
-        for i=1,4 do
-            for j=1,10 do
-                tagList[i][j]=true
-            end
-        end
-    end,font=60,rgb=color.blue},
-    ]=]
 
     -- attempts list
-    {type='listBox',name='attemptList',x=20,y=100,w=680,h=440,drawFunc=function(i,n)
+    {type='listBox',name='attemptList',x=20,y=100,w=680,h=440,activeColor='White',drawFunc=function(i,n)
         FONT.set(30,'mono')
         GC.setColor(COLOR.White)
         GC.print(i.attempt,20,-2)
@@ -541,11 +527,11 @@ scene_play.widgetList={
             GC.rectangle('fill',0,0,10,30)
         end
     end},
+
     --restart/trophy button
     {type='button',text="Restart",x=360,y=950,w=360,h=120,color='Red',visibleTick=function()
         return not (STAT.winStreak[mode]==5 and not STAT.mastered[mode]) and not inGame
     end,onClick=function() reset() SFX.play('check') end},
-
     {type='button',text="Get Trophy",x=360,y=950,w=420,h=120,color='Yellow',visibleTick=function()
         return STAT.winStreak[mode]==5 and not STAT.mastered[mode] and not inGame
     end,onClick=function()
@@ -555,7 +541,7 @@ scene_play.widgetList={
     end},
 }
 
-SCN.add('play',scene_play)  
+SCN.add('play',scene_play)
 
 
 
