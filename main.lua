@@ -75,8 +75,6 @@ if suc then
     TABLE.update(STAT,res.stat)
 end
 SFX.setVol(SETTINGS.sfx and 1 or 0)
-BGM.setVol(SETTINGS.bgm and 1 or 0)
-
 
 local modeColor={
     COLOR.Green,
@@ -333,11 +331,11 @@ end
 
 local scene_menu={}
 
-scene_menu.load=function()
-    BGM.play('title')
+function scene_menu.load()
+    if SETTINGS.bgm then BGM.play('title') end
 end
 
-scene_menu.draw=function()
+function scene_menu.draw()
     FONT.set(25)
     for i=1,5 do
         GC.setColor(modeColor[i])
@@ -348,7 +346,7 @@ scene_menu.draw=function()
     end
 end
 
-scene_menu.keyDown=function(k,rep)
+function scene_menu.keyDown(k,rep)
     if rep then return end
     if k=="escape" then
         ZENITHA._quit('fade')
@@ -412,33 +410,20 @@ SCN.add('menu',scene_menu)
 
 local scene_play={}
 
-scene_play.load=function()
-    BGM.play(mode>=4 and 'main2' or 'main')
+function scene_play.load()
+    if SETTINGS.bgm then BGM.play(mode>=4 and 'main2' or 'main') end
     SFX.play('check')
     scene_play.widgetList.attemptList:setList(attempts)
 end
 
-scene_play.mouseDown=function(x,y,k)
-    if showTag and k==1
-    and MATH.between(x,tagBoard.X,tagBoard.X+tagBoard.W)
-    and MATH.between(y,tagBoard.Y,tagBoard.Y+tagBoard.H)
-    then
-        local x,y=getBoardPos(x,y)
-        tagList[x][y]=not tagList[x][y]
-        SFX.play('sweep')
-    end
-end
-
-scene_play.draw=function()
+function scene_play.draw()
     GC.setColor(COLOR.White)
     GC.setLineWidth(5)
     FONT.set(60)
     GC.mStr(modeText[mode] or "",360,15)
     FONT.set(60,'mono')
     GC.rectangle("line",260,560,200,70)
-    if currentNum then
-        GC.print(currentNum,285,560)
-    end
+    GC.print(currentNum,285,560)
     GC.setColor(
         remain<=2 and COLOR.Red or
         remain<=4 and COLOR.Yellow or
@@ -463,16 +448,10 @@ scene_play.draw=function()
                 end
             end
         end
-        GC.setAlpha(.5)
-        if debug_mouseX then
-            local x,y=getBoardPos(debug_mouseX,debug_mouseY)
-            GC.rectangle('fill',(x-1)*B.CW,y*B.CH,B.CW,B.CH)
-        end
-
     end
 end
 
-scene_play.keyDown=function(k,rep)
+function scene_play.keyDown(k,rep)
     if rep then return end
     if #k==1 and tonumber(k) or k:match('kp%d') then
         numEnter(tonumber(k:match('%d')))
@@ -482,20 +461,26 @@ scene_play.keyDown=function(k,rep)
         numDel()
     elseif k=='escape' then
         quitCheck()
-    --elseif k=='\\' then
-    --    for _,v in next,answers do
-    --        print(v)
-    --    end
-    --    print("-----------")
-    --elseif k=='q' then
-    --    endGame('win')
-    --elseif k=='w' then
-    --    endGame('lose')
     end
     return true
 end
 
-scene_play.leave=function()
+function scene_play.mouseDown(x,y,k)
+    if showTag and k==1
+    and MATH.between(x,tagBoard.X,tagBoard.X+tagBoard.W)
+    and MATH.between(y,tagBoard.Y,tagBoard.Y+tagBoard.H)
+    then
+        local x,y=getBoardPos(x,y)
+        tagList[x][y]=not tagList[x][y]
+        SFX.play('sweep')
+    end
+end
+
+function scene_play.touchDown(x,y)
+    scene_play.mouseDown(x,y,1)
+end
+
+function scene_play.leave()
     TEXT:clear()
 end
 
@@ -519,10 +504,10 @@ scene_play.widgetList={
     {type='button',text="tag",x=660,y=595,w=70,h=70,visibleTick=function() return inGame end,sound_release='click',onClick=function() showTag=not showTag end,color='Yellow',},
     {type='button',text="save",x=60,y=595,w=70,h=70,visibleTick=function() return inGame and showTag end,sound_release='click',onClick=function()
         TABLE.update(savedTagList,tagList)
-    end,color='Red'},
+    end,fontSize=30,color='Red'},
     {type='button',text="load",x=150,y=595,w=70,h=70,visibleTick=function() return inGame and showTag and next(savedTagList[1]) end,sound_release='click',onClick=function()
         TABLE.update(tagList,savedTagList)
-    end,color='Green'},
+    end,fontSize=28,color='Green'},
     {type='button',text="reset",x=570,y=595,w=70,h=70,visibleTick=function() return inGame and showTag end,sound_release='error',onClick=function()
         for y=1,4 do
             tagList[y]={}
@@ -530,7 +515,7 @@ scene_play.widgetList={
                 tagList[y][x]=true
             end
         end
-    end,color='Blue'},
+    end,fontSize=25,color='Blue'},
     --[=[
     {"R",570,595,70,70,function()
         SFX("error")
@@ -576,12 +561,12 @@ SCN.add('play',scene_play)
 
 local scene_trophy={}
 
-scene_trophy.load=function()
-    BGM.play('trophy')
+function scene_trophy.load()
+    if SETTINGS.bgm then BGM.play('trophy') end
     SFX.play('win')
 end
 
-scene_trophy.draw=function()
+function scene_trophy.draw()
     FONT.set(60)
     GC.setColor(COLOR.White)
     GC.mStr(
@@ -595,7 +580,7 @@ scene_trophy.draw=function()
     GC.draw(IMG.cup[mode],360,600,0,20,20,10,10)
 end
 
-scene_trophy.keyDown=function(k,rep)
+function scene_trophy.keyDown(k,rep)
     if rep then return end
     if k=="escape" then
         SCN.back()
