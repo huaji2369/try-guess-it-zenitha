@@ -415,11 +415,14 @@ end
 function scene_play.draw()
     GC.setColor(COLOR.White)
     GC.setLineWidth(5)
+    --mode title
     FONT.set(60)
-    GC.mStr(modeText[mode] or "",360,15)
+    GC.mStr(modeText[mode],360,15)
+    --current number
     FONT.set(60,'mono')
     GC.rectangle("line",260,560,200,70)
     GC.print(currentNum,285,560)
+    --remaining attempts
     GC.setColor(
         remain<=2 and COLOR.Red or
         remain<=4 and COLOR.Yellow or
@@ -427,6 +430,7 @@ function scene_play.draw()
     )
     FONT.set(35)
     GC.print(remain,465,600)
+    --tagBoard
     if showTag then
         GC.setColor(COLOR.White)
         local B=tagBoard
